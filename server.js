@@ -4,12 +4,32 @@ import { quotes,users } from "./fakedb.js"
 
 const typeDefs=gql`
     type Query {
-        greet:String
+        users: [User]
+        user(id: ID!): User
+        quotes: [Quote]
+        iquote(by: ID!): [Quote]
+    }
+    type User {
+        id: ID!
+        firstName: String
+        lastName: String
+        email: String
+        quotes: [Quote]
+    }
+    type Quote {
+        by: ID
+        name: String
     }
 `
 const resolvers={
     Query:{
-        greet:()=>"Hello World"
+        users:()=>users,
+        user:(_,{id})=>users.find(user=>user.id===id),
+        quotes:()=>quotes,
+        iquote:(_,{by})=>quotes.filter(quote=>quote.by===by)
+    },
+    User:{
+        quotes:(ur)=>quotes.filter(quote=>quote.by===ur.id)
     }
 }
 const server=new ApolloServer({
